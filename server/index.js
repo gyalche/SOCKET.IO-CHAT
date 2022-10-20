@@ -42,7 +42,6 @@ io.on('connection', (socket) => {
   });
 });
 
-//Disconnect;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
