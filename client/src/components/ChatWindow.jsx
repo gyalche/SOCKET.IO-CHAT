@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import {
+  Card,
   Container,
   IconButton,
   InputAdornment,
@@ -37,32 +38,51 @@ const ChatWindow = () => {
     }
   }, [socket, chat]);
   return (
-    <div>
-      <Box sx={{ marginBottom: 5 }}>
-        {chat.map((message) => (
-          <Typography key={message}>{message}</Typography>
-        ))}
-      </Box>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+      }}>
+      <Card
+        sx={{
+          padding: 2,
+          marginTop: 10,
+          width: '60%',
+          backgroundColor: 'gray',
+          color: 'white',
+        }}>
+        <Box sx={{ marginBottom: 5 }}>
+          {chat.map((message) => (
+            <Typography key={message}>{message}</Typography>
+          ))}
+        </Box>
 
-      <Box component="form" onSubmit={handleForm}>
-        <OutlinedInput
-          id="outlined-adornment-password"
-          lable="Write your message"
-          size="small"
-          placeholder="Write your message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton type="submit" edge="end">
-                <SendIcon />
-              </IconButton>
-            </InputAdornment>
-          }
-          label="Password"
-        />
-      </Box>
-    </div>
+        <Box component="form" onSubmit={handleForm}>
+          <OutlinedInput
+            sx={{
+              color: 'white',
+              backgroundColor: 'white',
+              color: 'black',
+              width: '100%',
+            }}
+            id="outlined-adornment-password"
+            lable="Write your message"
+            size="small"
+            placeholder="Write your message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton type="submit" edge="end">
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
+          />
+        </Box>
+      </Card>
+    </Box>
   );
 };
 
