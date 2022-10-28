@@ -31,7 +31,7 @@ const ChatWindow = () => {
   useEffect(() => {
     if (socket) {
       socket.on('message-from-server', (data) => {
-        setChat((prev) => [...prev, data.message]);
+        setChat((prev) => [...prev, { message: data.message }]);
       });
     } else {
       return;
