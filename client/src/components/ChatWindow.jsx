@@ -23,20 +23,22 @@ const ChatWindow = () => {
     setSocket(socket);
   }, []);
 
-  const handleForm = (e) => {
-    e.preventDefault();
-    socket.emit('sent-message', { message });
-    setMessage('');
-  };
   useEffect(() => {
     if (socket) {
       socket.on('message-from-server', (data) => {
-        setChat((prev) => [...prev, { message: data.message }]);
+        setChat((prev) => [...prev, { message: data.message, received: true }]);
       });
     } else {
       return;
     }
   }, [socket, chat]);
+
+  const handleForm = (e) => {
+    e.preventDefault();
+    socket.emit('sent-message', { message });
+    setChat((prev) => [...prev, { message, received: false }]);
+    setMessage('');
+  };
   return (
     <Box
       sx={{
@@ -52,8 +54,12 @@ const ChatWindow = () => {
           color: 'white',
         }}>
         <Box sx={{ marginBottom: 5 }}>
-          {chat.map((message) => (
-            <Typography key={message}>{message}</Typography>
+          {chat.map((data) => (
+            <Typography
+              sx={{ textAlign: data.received ? 'left' : 'right' }}
+              key={data.message}>
+              {data.message}
+            </Typography>
           ))}
         </Box>
 
