@@ -37,11 +37,16 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('message-from-server', data);
     console.log('message received', data);
   });
+  socket.on('typing-started', (data) => {
+    socket.broadcast.emit('typing-started-from-server');
+  });
+  socket.on('typing-stoped', () => {
+    socket.broadcast.emit('typing-stoped-from-server');
+  });
   socket.on('disconnect', (socket) => {
     console.log('User is disconnected');
   });
 });
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

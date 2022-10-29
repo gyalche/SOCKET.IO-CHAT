@@ -8,6 +8,7 @@ import {
   Container,
   IconButton,
   InputAdornment,
+  InputLabel,
   OutlinedInput,
   Typography,
 } from '@mui/material';
@@ -17,6 +18,7 @@ const ChatWindow = () => {
   const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
     const socket = io('http://localhost:4000');
@@ -27,6 +29,12 @@ const ChatWindow = () => {
     if (socket) {
       socket.on('message-from-server', (data) => {
         setChat((prev) => [...prev, { message: data.message, received: true }]);
+      });
+      socket.on('typing-started-from-server', () => {
+        setTyping(true);
+      });
+      socket.on('typing-stoped-from-server', () => {
+        setTyping(false);
       });
     } else {
       return;
@@ -39,6 +47,22 @@ const ChatWindow = () => {
     setChat((prev) => [...prev, { message, received: false }]);
     setMessage('');
   };
+
+  const [typingTimeout, setTypingTimeout] = useState(null);
+  //typing event;
+  function handleInput(e) {
+    setMessage(e.target.value);
+    socket.emit('typing-started');
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    setTypingTimeout(
+      setTimeout(() => {
+        socket.emit('typing-stoped');
+      }, 1000)
+    );
+  }
   return (
     <Box
       sx={{
@@ -64,6 +88,12 @@ const ChatWindow = () => {
         </Box>
 
         <Box component="form" onSubmit={handleForm}>
+          {typing && (
+            <InputLabel shrink htmlFor="message-input">
+              <p style={{ color: 'white' }}>Typing...</p>
+            </InputLabel>
+          )}
+
           <OutlinedInput
             sx={{
               color: 'white',
@@ -71,12 +101,13 @@ const ChatWindow = () => {
               color: 'black',
               width: '100%',
             }}
-            id="outlined-adornment-password"
+            id="message-input"
             lable="Write your message"
             size="small"
             placeholder="Write your message"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            // onChange={(e) => setMessage(e.target.value)}
+            onChange={handleInput}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton type="submit" edge="end">
