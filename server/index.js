@@ -43,6 +43,11 @@ io.on('connection', (socket) => {
   socket.on('typing-stoped', () => {
     socket.broadcast.emit('typing-stoped-from-server');
   });
+
+  socket.on('join-room', ({ roomId }) => {
+    socket.join(roomId);
+    console.log('joining room');
+  });
   socket.on('disconnect', (socket) => {
     console.log('User is disconnected');
   });

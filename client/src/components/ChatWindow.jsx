@@ -13,17 +13,14 @@ import {
   Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { useOutletContext } from 'react-router-dom';
 
 const ChatWindow = () => {
-  const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
   const [typing, setTyping] = useState(false);
 
-  useEffect(() => {
-    const socket = io('http://localhost:4000');
-    setSocket(socket);
-  }, []);
+  const { socket } = useOutletContext();
 
   useEffect(() => {
     if (socket) {
