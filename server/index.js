@@ -33,15 +33,22 @@ const io = new Server(httpServer, {
 io.on('connection', (socket) => {
   //we are listening to send-message from client side;
   //and we are reciveivng the data;
-  socket.on('sent-message', (data) => {
-    socket.broadcast.emit('message-from-server', data);
-    console.log('message received', data);
+  socket.on('sent-message', ({ message, roomId }) => {
+    let skt = socket.broadcast;
+    skt = roomId ? skt.to(roomId) : skt;
+
+    skt.emit('message-from-server', { message });
+    // console.log('message received', message);
   });
-  socket.on('typing-started', (data) => {
-    socket.broadcast.emit('typing-started-from-server');
+  socket.on('typing-started', ({ roomId }) => {
+    let skt = socket.broadcast;
+    skt = roomId ? skt.to(roomId) : skt;
+    skt.emit('typing-started-from-server');
   });
-  socket.on('typing-stoped', () => {
-    socket.broadcast.emit('typing-stoped-from-server');
+  socket.on('typing-stoped', ({ roomId }) => {
+    let skt = socket.broadcast;
+    skt = roomId ? skt.to(roomId) : skt;
+    skt.emit('typing-stoped-from-server');
   });
 
   socket.on('join-room', ({ roomId }) => {

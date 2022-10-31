@@ -8,16 +8,16 @@ const Header = () => {
 
   return (
     <Card sx={{ marginTop: 5, backgroundColor: 'gray' }} raised>
-      <Link to="/">
-        <Button sx={{ color: 'white', textDecoration: 'none' }}>Home</Button>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <Button sx={{ color: 'white' }}>Home</Button>
       </Link>
-      <Link to="/chats">
-        <Button sx={{ color: 'white', textDecoration: 'none' }} variant="text">
+      <Link to="/chats" style={{ textDecoration: 'none' }}>
+        <Button sx={{ color: 'white' }} variant="text">
           Chats
         </Button>
       </Link>
-      <Link to={`/room/${roomId}`}>
-        <Button sx={{ color: 'white', textDecoration: 'none' }} variant="text">
+      <Link to={`/room/${roomId}`} style={{ textDecoration: 'none' }}>
+        <Button sx={{ color: 'white' }} variant="text">
           Rooms
         </Button>
       </Link>

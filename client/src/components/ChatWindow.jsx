@@ -13,13 +13,14 @@ import {
   Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useParams } from 'react-router-dom';
 
 const ChatWindow = () => {
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
   const [typing, setTyping] = useState(false);
 
+  const { roomId } = useParams();
   const { socket } = useOutletContext();
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const ChatWindow = () => {
 
   const handleForm = (e) => {
     e.preventDefault();
-    socket.emit('sent-message', { message });
+    socket.emit('sent-message', { message, roomId });
     setChat((prev) => [...prev, { message, received: false }]);
     setMessage('');
   };
@@ -49,14 +50,14 @@ const ChatWindow = () => {
   //typing event;
   function handleInput(e) {
     setMessage(e.target.value);
-    socket.emit('typing-started');
+    socket.emit('typing-started', { roomId });
 
     if (typingTimeout) {
       clearTimeout(typingTimeout);
     }
     setTypingTimeout(
       setTimeout(() => {
-        socket.emit('typing-stoped');
+        socket.emit('typing-stoped', { roomId });
       }, 1000)
     );
   }
@@ -74,6 +75,7 @@ const ChatWindow = () => {
           backgroundColor: 'gray',
           color: 'white',
         }}>
+        {roomId && <Typography>Room: {roomId}</Typography>}
         <Box sx={{ marginBottom: 5 }}>
           {chat.map((data) => (
             <Typography
