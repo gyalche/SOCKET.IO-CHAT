@@ -1,0 +1,10 @@
+import BaseController from './BaseController.js';
+export default class MessageController extends BaseController {
+  sentMessage = ({ message, roomId }) => {
+    let skt = this.socket.broadcast;
+    skt = roomId ? skt.to(roomId) : skt;
+
+    skt.emit('message-from-server', { message });
+    // console.log('message received', message);
+  };
+}

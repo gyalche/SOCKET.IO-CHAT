@@ -5,19 +5,36 @@ import cors from 'cors';
 import http from 'http';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
+import sockets from './socket/routes.js';
+import mongoose from 'mongoose';
+import router from './socket/api/Routes.js';
 
 dotenv.config();
 const app = express();
 app.use(morgan('dev'));
-app.use(cors());
 
 import path from 'path';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
+
+mongoose
+  .connect(
+    'mongodb+srv://dawa:dawa@cluster0.b5xdyqs.mongodb.net/?retryWrites=true&w=majority',
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
+  .then((data) => {
+    console.log(`mongo db is connect at ${data.connection.host}`);
+  });
+app.use(cors());
+app.use('/', router);
 
 //creating server from the http and we have use the express instance;
 const httpServer = http.createServer(app); // we can link this server to the socket server;
@@ -30,35 +47,7 @@ const io = new Server(httpServer, {
 });
 
 //connection;
-io.on('connection', (socket) => {
-  //we are listening to send-message from client side;
-  //and we are reciveivng the data;
-  socket.on('sent-message', ({ message, roomId }) => {
-    let skt = socket.broadcast;
-    skt = roomId ? skt.to(roomId) : skt;
-
-    skt.emit('message-from-server', { message });
-    // console.log('message received', message);
-  });
-  socket.on('typing-started', ({ roomId }) => {
-    let skt = socket.broadcast;
-    skt = roomId ? skt.to(roomId) : skt;
-    skt.emit('typing-started-from-server');
-  });
-  socket.on('typing-stoped', ({ roomId }) => {
-    let skt = socket.broadcast;
-    skt = roomId ? skt.to(roomId) : skt;
-    skt.emit('typing-stoped-from-server');
-  });
-
-  socket.on('join-room', ({ roomId }) => {
-    socket.join(roomId);
-    console.log('joining room');
-  });
-  socket.on('disconnect', (socket) => {
-    console.log('User is disconnected');
-  });
-});
+io.on('connection', sockets);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

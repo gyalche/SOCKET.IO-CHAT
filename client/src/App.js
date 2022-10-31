@@ -20,8 +20,7 @@ function App() {
           justifyContent: 'center',
         }}>
         <Container>
-          <Header />
-
+          <Header socket={socket} />
           <Outlet context={{ socket }} />
         </Container>
       </Box>
