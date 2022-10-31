@@ -18,14 +18,18 @@ const Header = ({ socket, userId, setUserId }) => {
   const createNewRoom = () => {
     const roomId = uuidv4();
     navigate(`/room/${roomId}`);
-    socket.emit('new-room-created', { roomId });
-    setRooms([...rooms, roomId]);
+    socket.emit('new-room-created', { roomId, userId });
+    setRooms([...rooms, { roomId, name: 'Test', _id: 'testId' }]);
   };
 
   useEffect(() => {
+    
     if (!socket) return;
-    socket.on('new-room-created', ({ roomId }) => {
-      setRooms([...rooms, roomId]);
+    socket.on('new-room-created', ({ room }) => {
+      setRooms([...rooms, room]);
+    });
+    socket.on('room-removed', ({ roomId }) => {
+      setRooms(rooms.filter((room) => room.roomId !== roomId));
     });
   }, [socket, rooms]);
 
@@ -33,9 +37,9 @@ const Header = ({ socket, userId, setUserId }) => {
   useEffect(() => {
     async function fetchRooms() {
       const res = await fetch('http://localhost:4000/rooms');
-      const data = await res.json();
-      console.log(data);
-      setRooms(data);
+      const { rooms } = await res.json();
+      console.log(rooms);
+      setRooms(rooms);
     }
     fetchRooms();
   }, []);
@@ -60,7 +64,7 @@ const Header = ({ socket, userId, setUserId }) => {
             <Button sx={{ color: 'white' }}>Home</Button>
           </Link>
 
-          {rooms.length > 0 &&
+          {rooms?.length > 0 &&
             rooms.map((room) => (
               <Link
                 to={`/room/${room.roomId}`}

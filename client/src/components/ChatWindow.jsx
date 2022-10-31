@@ -61,6 +61,14 @@ const ChatWindow = () => {
       }, 1000)
     );
   }
+
+  async function removeRoom() {
+    // await fetch(`http://localhost:4000/rooms/${roomId}`, {
+    //   method: 'DELETE',
+    // });
+
+    socket.emit('room-removed', { roomId });
+  }
   return (
     <Box
       sx={{
@@ -75,7 +83,19 @@ const ChatWindow = () => {
           backgroundColor: 'gray',
           color: 'white',
         }}>
-        {roomId && <Typography>Room: {roomId}</Typography>}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {roomId && <Typography>Room: {roomId}</Typography>}
+          {roomId && (
+            <Button
+              size="small"
+              variant="text"
+              color="secondary"
+              onClick={removeRoom}>
+              Delete Room
+            </Button>
+          )}
+        </Box>
+
         <Box sx={{ marginBottom: 5 }}>
           {chat.map((data) => (
             <Typography
