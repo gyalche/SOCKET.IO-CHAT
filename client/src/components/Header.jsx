@@ -8,8 +8,9 @@ import {
   useOutletContext,
 } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import Cookies from 'js-cookies';
 
-const Header = ({ socket }) => {
+const Header = ({ socket, userId, setUserId }) => {
   const navigate = useNavigate();
   //   const { socket } = useOutletContext();
   const [rooms, setRooms] = useState([]);
@@ -38,6 +39,19 @@ const Header = ({ socket }) => {
     }
     fetchRooms();
   }, []);
+
+  function login() {
+    let userId = uuidv4();
+    setUserId(userId);
+    Cookies.setItem('userId', userId);
+    navigate('/');
+  }
+
+  function logout() {
+    Cookies.removeItem('userId');
+    setUserId(null);
+    navigate('/');
+  }
   return (
     <Card sx={{ marginTop: 5, backgroundColor: 'gray' }} raised>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -59,9 +73,26 @@ const Header = ({ socket }) => {
             ))}
         </Box>
 
-        <Button sx={{ color: 'white' }} variant="text" onClick={createNewRoom}>
-          New Room
-        </Button>
+        <Box>
+          {userId && (
+            <>
+              <Button sx={{ color: 'white' }} variant="text" onClick={logout}>
+                Logout
+              </Button>
+              <Button
+                sx={{ color: 'white' }}
+                variant="text"
+                onClick={createNewRoom}>
+                New Room
+              </Button>
+            </>
+          )}
+          {!userId && (
+            <Button sx={{ color: 'white' }} variant="text" onClick={login}>
+              Login
+            </Button>
+          )}
+        </Box>
       </Box>
     </Card>
   );

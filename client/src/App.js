@@ -5,12 +5,19 @@ import { Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import Cookies from 'js-cookies';
 function App() {
   const [socket, setSocket] = useState(null);
+  const [userId, setUserId] = useState(false);
 
   useEffect(() => {
-    const socket = io('http://localhost:4000');
-    setSocket(socket);
+    setSocket(io('http://localhost:4000'));
+    const _userId = Cookies.getItem('userId');
+
+    if (_userId) {
+      setUserId(true);
+    }
+    // setSocket(socket);
   }, []);
   return (
     <div>
@@ -20,8 +27,8 @@ function App() {
           justifyContent: 'center',
         }}>
         <Container>
-          <Header socket={socket} />
-          <Outlet context={{ socket }} />
+          <Header socket={socket} userId={userId} setUserId={setUserId} />
+          <Outlet context={{ socket, userId }} />
         </Container>
       </Box>
     </div>
