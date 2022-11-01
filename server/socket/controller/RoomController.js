@@ -5,12 +5,17 @@ export default class RoomController extends BaseController {
     this.socket.join(roomId);
   };
 
-  newRoomCreated = ({ roomId }) => {
+  newRoomCreated = ({ roomId, userId }) => {
     const room = new Room({
       name: 'Test',
-      roomId: roomId,
+      roomId,
+      userId,
     });
     room.save();
-    this.socket.broadcast.emit('new-room-created', { roomId });
+    this.socket.emit('new-room-created', { room });
+  };
+  roomRemoved = async ({ roomId }) => {
+    // await Room.deleteOne({ roomId: req.params.roomId });
+    this.socket.emit('room-removed', { roomId });
   };
 }
