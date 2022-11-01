@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useOutletContext, useParams } from 'react-router-dom';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 const ChatWindow = () => {
   const [message, setMessage] = useState('');
@@ -33,6 +34,13 @@ const ChatWindow = () => {
       });
       socket.on('typing-stoped-from-server', () => {
         setTyping(false);
+      });
+      socket.on('uploaded', (data) => {
+        console.log(data);
+        setChat((prev) => [
+          ...prev,
+          { message: data.buffer, received: true, type: 'image' },
+        ]);
       });
     } else {
       return;
@@ -60,6 +68,27 @@ const ChatWindow = () => {
         socket.emit('typing-stoped', { roomId });
       }, 1000)
     );
+  }
+
+  const fileRef = useRef();
+
+  function selectFile() {
+    fileRef.current.click();
+  }
+
+  function fileSelected(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const data = reader.result;
+      socket.emit('upload', { data, roomId });
+      setChat((prev) => [
+        ...prev,
+        { message: reader.result, received: false, type: 'image' },
+      ]);
+    };
   }
 
   async function removeRoom() {
@@ -97,13 +126,17 @@ const ChatWindow = () => {
         </Box>
 
         <Box sx={{ marginBottom: 5 }}>
-          {chat.map((data) => (
-            <Typography
-              sx={{ textAlign: data.received ? 'left' : 'right' }}
-              key={data.message}>
-              {data.message}
-            </Typography>
-          ))}
+          {chat.map((data) =>
+            data.type === 'image' ? (
+              <img src={data.message} alt="image" width="200" />
+            ) : (
+              <Typography
+                sx={{ textAlign: data.received ? 'left' : 'right' }}
+                key={data.message}>
+                {data.message}
+              </Typography>
+            )
+          )}
         </Box>
 
         <Box component="form" onSubmit={handleForm}>
@@ -129,6 +162,19 @@ const ChatWindow = () => {
             onChange={handleInput}
             endAdornment={
               <InputAdornment position="end">
+                <input
+                  onChange={fileSelected}
+                  ref={fileRef}
+                  type="file"
+                  style={{ display: 'none' }}
+                />
+                <IconButton
+                  type="submit"
+                  edge="end"
+                  sx={{ marginRight: 1 }}
+                  onClick={selectFile}>
+                  <AttachFileIcon />
+                </IconButton>
                 <IconButton type="submit" edge="end">
                   <SendIcon />
                 </IconButton>
